@@ -51,8 +51,27 @@ OSPF_INT_ATTRIBUTES = {
     'retransmit_interval': '/config/retransmission-interval',
     'transmit_delay': '/config/transmit-delay',
     'passive': '/config/passive',
-    'advertise': '/config/advertise'
+    'advertise': '/config/advertise',
+    'ospfv3ipsec': {
+        'authentication': {
+            'spi_value': '/ospfv3ipsec/authentication/spi-value',
+            'authentication_type': '/ospfv3ipsec/authentication/authentication-type',
+            'authentication_algorithm': '/ospfv3ipsec/authentication/authentication-algorithm',
+            'authentication_key': '/ospfv3ipsec/authentication/authentication-key',
+            'authentication_key_encrypted': '/ospfv3ipsec/authentication/authentication-key-encrypted'
+        },
+        'encryption': {
+            'spi_value': '/ospfv3ipsec/encryption/spi-value',
+            'encryption_type': '/ospfv3ipsec/encryption/encryption-type',
+            'encryption_algorithm': '/ospfv3ipsec/encryption/encryption-algorithm',
+            'encryption_key': '/ospfv3ipsec/encryption/encryption-key',
+            'encryption_key_encrypted': '/ospfv3ipsec/encryption/encryption-key-encrypted',
+            'authentication_algorithm': '/ospfv3ipsec/encryption/authentication-algorithm',
+            'authentication_key': '/ospfv3ipsec/encryption/authentication-key',
+            'authentication_key_encrypted': '/ospfv3ipsec/encryption/authentication-key-encrypted'
 
+        }
+    }
 }
 
 
@@ -151,6 +170,7 @@ class Ospfv3_interfaces(ConfigBase):
         """
         commands, requests = [], []
         state = self._module.params['state']
+        # want = self.validate_want(want, have, state)
 
         if state == 'overridden' or state == 'replaced':
             commands, requests = self._state_replaced_or_overridden(want, have)
@@ -224,6 +244,8 @@ class Ospfv3_interfaces(ConfigBase):
         return commands, requests
 
     def _get_replaced_overridden_config(self, want, have):
+        # import epdb
+        # epdb.serve(port=11011)
         add_config, del_config = [], []
         state = self._module.params['state']
         for conf in want:
@@ -256,6 +278,39 @@ class Ospfv3_interfaces(ConfigBase):
                                 elif (attr in conf and attr in have_conf and conf[attr] != have_conf[attr]):
                                     del_cfg = have_conf[attr]
                                     add_cfg[attr] = conf[attr]
+                            elif attr == 'ospfv3ipsec':
+                                # Compare each element inside authentication or encryption dict
+                                if 'authentication' in conf[attr]:
+                                    if 'authentication' in have_conf[attr]:
+                                        for auth_attr in conf[attr]['authentication']:
+                                            if auth_attr not in have_conf[attr]['authentication']:
+                                                add_cfg.setdefault(attr, {}).setdefault('authentication', {})[auth_attr] = (
+                                                    conf[attr]['authentication'][auth_attr])
+                                            elif conf[attr]['authentication'][auth_attr] != have_conf[attr]['authentication'][auth_attr]:
+                                                del_cfg.setdefault(attr, {}).setdefault('authentication', {})[auth_attr] = (
+                                                    have_conf[attr]['authentication'][auth_attr])
+                                                add_cfg.setdefault(attr, {}).setdefault('authentication', {})[auth_attr] = (
+                                                    conf[attr]['authentication'][auth_attr])
+                                            if auth_attr not in conf[attr]['authentication']:
+                                                del_cfg.setdefault(attr, {}).setdefault('authentication', {})[auth_attr] = (
+                                                    have_conf[attr]['authentication'][auth_attr])
+
+                                elif 'encryption' in conf[attr]:
+                                    if 'encryption' in have_conf[attr]:
+                                        for enc_attr in conf[attr]['encryption']:
+                                            if enc_attr not in have_conf[attr]['encryption']:
+                                                add_cfg.setdefault(attr, {}).setdefault('encryption', {})[enc_attr] = (
+                                                    conf[attr]['encryption'][enc_attr])
+                                            elif conf[attr]['encryption'][enc_attr] != have_conf[attr]['encryption'][enc_attr]:
+                                                del_cfg.setdefault(attr, {}).setdefault('encryption', {})[enc_attr] = (
+                                                    have_conf[attr]['encryption'][enc_attr])
+                                                add_cfg.setdefault(attr, {}).setdefault('encryption', {})[enc_attr] = (
+                                                    conf[attr]['encryption'][enc_attr])
+                                            if enc_attr not in conf[attr]['encryption']:
+                                                del_cfg.setdefault(attr, {}).setdefault('encryption', {})[enc_attr] = (
+                                                    have_conf[attr]['encryption'][enc_attr])
+                                else:
+                                    add_cfg[attr] = conf[attr]
                             else:
                                 if (attr in conf and attr not in have_conf):
                                     add_cfg[attr] = conf[attr]
@@ -281,19 +336,21 @@ class Ospfv3_interfaces(ConfigBase):
     def get_create_ospf_interfaces_requests(self, commands, have):
         requests = []
         bfd_dict = {}
+
         if not commands:
             return requests
 
         for cmd in commands:
             payload = {}
             bfd_dict = {}
+            ospfv3ipsec_dict = {}
             name = cmd.get('name')
             match = next((item for item in have if item['name'] == cmd['name']), None)
             intf_name, sub_intf = self.get_ospf_if_and_subif(name)
             ospf_path = self.get_ospf_uri(intf_name, sub_intf)
             ospf_attr_configs = {}
-            # default_address_attr_dict = {}
             network_type = ""
+
             area_id = cmd.get('area_id')
             have_area_id = None
             if match is not None:
@@ -312,16 +369,46 @@ class Ospfv3_interfaces(ConfigBase):
             self.update_dict(cmd, ospf_attr_configs, 'passive', 'passive')
             self.update_dict(cmd, ospf_attr_configs, 'advertise', 'advertise')
 
+            network_type = ""
+            if 'network' in cmd:
+                network_type = cmd.get('network')
+                network_type = network_type.upper() + '_NETWORK'
+                ospf_attr_configs['network-type'] = network_type
+
             if 'bfd' in cmd:
                 attr = 'bfd'
                 self.update_dict(cmd[attr], bfd_dict, 'enable', 'enabled')
                 self.update_dict(cmd[attr], bfd_dict, 'bfd_profile', 'bfd-profile')
-            # network_type = cmd.get('network')
-            if 'network' in cmd:
-                network_type = cmd.get('network')
-                network_type = network_type.upper() + '_NETWORK'
-                # self.update_dict(cmd, ospf_attr_configs, 'network_type', 'network-type')
-                ospf_attr_configs['network-type'] = network_type
+
+            if 'ospfv3ipsec' in cmd:
+                attr = 'ospfv3ipsec'
+                if 'authentication' in cmd[attr]:
+                    ospfv3ipsec_dict['operation'] = 'AUTHENTICATION'
+                    self.update_dict(cmd[attr]['authentication'], ospfv3ipsec_dict, 'authentication_algorithm', 'authentication-algorithm')
+                    self.update_dict(cmd[attr]['authentication'], ospfv3ipsec_dict, 'authentication_key', 'authentication-key')
+                    self.update_dict(cmd[attr]['authentication'], ospfv3ipsec_dict, 'authentication_key_encrypted', 'authentication-key-encrypted')
+                    self.update_dict(cmd[attr]['authentication'], ospfv3ipsec_dict, 'authentication_type', 'authentication-type')
+                    self.update_dict(cmd[attr]['authentication'], ospfv3ipsec_dict, 'spi_value', 'spi-value')
+
+                elif 'encryption' in cmd[attr]:
+                    ospfv3ipsec_dict['operation'] = 'ENCRYPTION'
+                    if 'encryption_algorithm' in cmd[attr]['encryption'] and cmd[attr]['encryption']['encryption_algorithm'] == 'NULL':
+                        self.update_dict(cmd[attr]['encryption'], ospfv3ipsec_dict, 'spi_value', 'spi-value')
+                        self.update_dict(cmd[attr]['encryption'], ospfv3ipsec_dict, 'encryption_type', 'encryption-type')
+                        self.update_dict(cmd[attr]['encryption'], ospfv3ipsec_dict, 'encryption_algorithm', 'encryption-algorithm')
+                        self.update_dict(cmd[attr]['encryption'], ospfv3ipsec_dict, 'authentication_algorithm', 'authentication-algorithm')
+                        self.update_dict(cmd[attr]['encryption'], ospfv3ipsec_dict, 'authentication_key', 'authentication-key')
+                        self.update_dict(cmd[attr]['encryption'], ospfv3ipsec_dict, 'authentication_key_encrypted', 'authentication-key-encrypted')
+                    else:
+                        self.update_dict(cmd[attr]['encryption'], ospfv3ipsec_dict, 'spi_value', 'spi-value')
+                        self.update_dict(cmd[attr]['encryption'], ospfv3ipsec_dict, 'encryption_type', 'encryption-type')
+                        self.update_dict(cmd[attr]['encryption'], ospfv3ipsec_dict, 'encryption_algorithm', 'encryption-algorithm')
+                        self.update_dict(cmd[attr]['encryption'], ospfv3ipsec_dict, 'encryption_key', 'encryption-key')
+                        self.update_dict(cmd[attr]['encryption'], ospfv3ipsec_dict, 'encryption_key_encrypted', 'encryption-key-encrypted')
+                        self.update_dict(cmd[attr]['encryption'], ospfv3ipsec_dict, 'authentication_algorithm', 'authentication-algorithm')
+                        self.update_dict(cmd[attr]['encryption'], ospfv3ipsec_dict, 'authentication_key', 'authentication-key')
+                        self.update_dict(cmd[attr]['encryption'], ospfv3ipsec_dict, 'authentication_key_encrypted', 'authentication-key-encrypted')
+
             if ospf_attr_configs:
                 payload = {
                     'openconfig-ospfv3-ext:ospfv3': {
@@ -329,6 +416,7 @@ class Ospfv3_interfaces(ConfigBase):
                     }
                 }
                 requests.append({'path': ospf_path, 'method': PATCH, 'data': payload})
+
             if bfd_dict:
                 payload = {
                     'openconfig-ospfv3-ext:ospfv3': {
@@ -336,14 +424,25 @@ class Ospfv3_interfaces(ConfigBase):
                     }
                 }
                 requests.append({'path': ospf_path, 'method': PATCH, 'data': payload})
+
+            if ospfv3ipsec_dict:
+                payload = {
+                    'openconfig-ospfv3-ext:ospfv3': {
+                        'ospfv3ipsec': {'config': ospfv3ipsec_dict}
+                    }
+                }
+
+                requests.append({'path': ospf_path, 'method': PATCH, 'data': payload})
+
         return requests
 
     def get_delete_ospf_interfaces_commands_requests(self, commands, have, is_delete_all):
         commands_del, requests = [], []
         if not commands:
             return commands_del, requests
-
         for cmd in commands:
+            # import epdb
+            # epdb.serve(port=11011)
             del_cmd = {}
             name = cmd.get('name')
             intf_name, sub_intf = self.get_ospf_if_and_subif(name)
@@ -372,17 +471,27 @@ class Ospfv3_interfaces(ConfigBase):
                         path = ospf_path + OSPF_INT_ATTRIBUTES['network']
                         requests.append({'path': path, 'method': DELETE})
                         del_cmd[attr] = match_have[attr]
+
+                    elif attr == 'ospfv3ipsec':
+                        ipsec_attr = cmd.get(attr, {})
+                        if ipsec_attr:
+                            if 'ospfv3ipsec' in match_have:
+                                path = ospf_path + "/ospfv3ipsec/config"
+                                requests.append({'path': path, 'method': DELETE})
+                                del_cmd[attr] = ipsec_attr
+
                     else:
                         match_ospf_attrs = match_have.get(attr, [])
                         ospf_attrs = cmd.get(attr)
                         if match_ospf_attrs and ospf_attrs:
-                            path = ospf_path + OSPF_INT_ATTRIBUTES[attr]
+                            path = ospf_path + OSPF_INT_ATTRIBUTES.get(attr, '')
                             requests.append({'path': path, 'method': DELETE})
                             del_cmd[attr] = match_ospf_attrs
 
-                if del_cmd:
-                    del_cmd['name'] = name
-                    commands_del.append(del_cmd)
+            if del_cmd:
+                del_cmd['name'] = name
+                commands_del.append(del_cmd)
+
         return commands_del, requests
 
     def get_ospf_uri(self, intf_name, sub_intf=0):

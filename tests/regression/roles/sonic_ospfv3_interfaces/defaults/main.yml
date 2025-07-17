@@ -8,6 +8,23 @@ sonic_ospfv3_interfaces_test_vars:
   vlan2: "Vlan101"
   lo1: "Loopback100"
 
+sonic_ospfv3_interfaces_test_vars_keys:
+  l1: "U2FsdGVkX18CeqRGe0yw9MYx7auhvoudMpnTkBjQhMzJs/4VGMQnlhCndvFdoJHe2GmMEPiqjxp940cOKrogdQ=="
+  l2: "U2FsdGVkX1+RVU8e/t9tl/WgxdwLqE5ItVx3qyiviwc2jm5SvfH64yALBdASkG+piHyxZHn0JZGGQAb6Z6YnQg=="
+  l3: "U2FsdGVkX18YF7GTSaFz25cM142ikx3vdltAb+ryG4cJe8PAVmn4lgZq8TDX9TDvsKMFogC+JaumKItGAR28lA=="
+  l4: "U2FsdGVkX19tgCo05DW+LjJfAh1GqmuIDJvxrl4EQ7K5WDL3SVEUWCpKMzmo/0zSlEo1a/STxbShQ5B1y7ob4ptzxwp5R2qPEvnVtyf3NfdyK/YbZ0+lPWTGY23o+rB6"
+  l5: "U2FsdGVkX18OkFUugqwAcgHLMQSX7bwStbteHXGIgAcN/uXuYVaeFzJn7lSWYrS1CAviswEWqrSJ+gMbjv5N/w=="
+  l6: "U2FsdGVkX1+gBBAgFHcL129bI2HWiUTDJ+2W1VnDIxIr8eRoYpCXR73sUKDQ1WR0rB7/Sa6fUE/FapzvnvG6jLXDmciDOdqUj8PFxpRYmKw="
+  l7: "U2FsdGVkX19Bjlgy5+3xY5wdsmgBAvKOfRMCWVaMNfr7o4eKN+gsrOq1SQ91y8a35qK6uf/hr3wmfl3kjY1oKi+BnAXCSrRGlk7PQxg4YXzDu35X22qorxlhoIX/KFlp"
+  l8: "U2FsdGVkX1/SmH9w3PitetUhdhlYhYAa99agYGZhPy3ri0zsJJo1Ax5XpGx7O2Q16CoJmB+j1R/sC7L7MZDqKA=="
+  l9: "U2FsdGVkX1/8gNMl2sXnZ67u/kbAro0hCv1ROjU7L/4QRGOCNZXSTlJN7Z3Dg4CE"
+  l10: "U2FsdGVkX19bG6Se+MWWNuQC0QvYgGexmoyhqHHYAny6S2mvaXXWe5WrzEZwjSYfHX3AlyEkAYB0hwQ7x8WSiA=="
+  l11: "U2FsdGVkX187yWbcn1HjrRhdkAKF30R4UaAz5d+7xLef6cSOsJRMAxpIAvuxGHAlft3GPTzvm5ULKQTmc0xkPWQpKEc69Watpz1LoRssfRxpWMzjQhQHrFLYXziSorgK"
+  l12: "U2FsdGVkX19aKmWfgPRhZy+FxH4XWryebfGLGDfw/R/uhTaT8fXIwbEG9IQQK7Sin3UiLrek2m2oVVL0xRABXyVXloPuIrkCpxszNnKLPc4="
+  l13: "U2FsdGVkX1/rEbwd7HTqNeTUuUCvUhj/WJgNmztr/uo250Vropfo77cah+FAABtxbumS8nMpsj6dN5a6foB9Ig=="
+  l14: "U2FsdGVkX18UViO467B0RXEjOk0Fi0aZJ3EiZHgsv7DOvI0dfqktmRNubaDBe2fC"
+  l15: "U2FsdGVkX1/fD/5PLeBp/ywbL+CMYKD93oJZUU8QRRMIlXxnbGyrws3yCQcdunfRtTh6m9SnBGqUW/jX46XuZA=="
+
 sonic_ospfv3_interfaces_preparations_tests:
   lag_interfaces:
     - name: "{{ sonic_ospfv3_interfaces_test_vars.po1 }}"
@@ -39,6 +56,13 @@ sonic_ospfv3_interfaces_tests:
           enable: true
           bfd_profile: 'profile1'
         network: broadcast
+        ospfv3ipsec:
+          authentication:
+            authentication_algorithm: 'SHA1'
+            authentication_key: "{{ sonic_ospfv3_interfaces_test_vars_keys.l1 }}"
+            authentication_key_encrypted: true
+            authentication_type: 'IPSEC'
+            spi_value: 958
       - name: "{{ interface8 }}"
         area_id: '3.3.3.3'
         bfd:
@@ -48,6 +72,15 @@ sonic_ospfv3_interfaces_tests:
         bfd:
           enable: true
           bfd_profile: 'profile1'
+        ospfv3ipsec:
+          encryption:
+            spi_value: 493
+            encryption_type: 'IPSEC'
+            encryption_algorithm: 'AES_CBC_128'
+            encryption_key:  "{{ sonic_ospfv3_interfaces_test_vars_keys.l2 }}"
+            authentication_algorithm: 'MD5'
+            authentication_key: "{{ sonic_ospfv3_interfaces_test_vars_keys.l3 }}"
+            authentication_key_encrypted: true
 
   - name: test_case_02
     description: Add OSPFv3 interface configurations for Lag interfaces
@@ -63,6 +96,14 @@ sonic_ospfv3_interfaces_tests:
         bfd:
           enable: true
           bfd_profile: 'profile1'
+        ospfv3ipsec:
+          encryption:
+            spi_value: 491
+            encryption_type: 'IPSEC'
+            encryption_algorithm: 'NULL'
+            authentication_algorithm: 'SHA256'
+            authentication_key: "{{ sonic_ospfv3_interfaces_test_vars_keys.l4 }}"
+            authentication_key_encrypted: true
       - name: "{{ sonic_ospfv3_interfaces_test_vars.po2 }}"
         area_id: '3.3.3.3'
 
@@ -77,6 +118,13 @@ sonic_ospfv3_interfaces_tests:
         bfd:
           enable: true
           bfd_profile: 'profile2'
+        ospfv3ipsec:
+          authentication:
+            authentication_type: 'IPSEC'
+            authentication_algorithm: 'MD5'
+            authentication_key: "{{ sonic_ospfv3_interfaces_test_vars_keys.l5 }}"
+            authentication_key_encrypted: true
+            spi_value: 700
         network: broadcast
       - name: "{{ sonic_ospfv3_interfaces_test_vars.lo1 }}"
         network: point_to_point
@@ -96,12 +144,22 @@ sonic_ospfv3_interfaces_tests:
       - name: "{{ interface7 }}"
         area_id: '4.4.4.4'
         cost: 15
-      - name: "{{ sonic_ospfv3_interfaces_test_vars.vlan2 }}"
+      - name: "{{ sonic_ospfv3_interfaces_test_vars.vlan1 }}"
         bfd:
           enable: true
           bfd_profile: 'profile2'
         network: broadcast
         area_id: '1.1.1.1'
+        ospfv3ipsec:
+          encryption:
+            spi_value: 830
+            encryption_type: 'IPSEC'
+            encryption_algorithm: 'AES_CBC_192'
+            encryption_key: "{{ sonic_ospfv3_interfaces_test_vars_keys.l6 }}"
+            encryption_key_encrypted: true
+            authentication_algorithm: 'SHA256'
+            authentication_key: "{{ sonic_ospfv3_interfaces_test_vars_keys.l7 }}"
+            authentication_key_encrypted: true
       - name: "{{ sonic_ospfv3_interfaces_test_vars.lo1 }}"
         area_id: 5.5.5.5
         cost: 20
@@ -132,9 +190,24 @@ sonic_ospfv3_interfaces_tests:
       - name: "{{ interface7 }}"
         bfd:
           enable: true
+        ospfv3ipsec:
+          authentication:
+            authentication_algorithm: 'SHA1'
+            authentication_key: "{{ sonic_ospfv3_interfaces_test_vars_keys.l1 }}"
+            authentication_key_encrypted: true
+            authentication_type: 'IPSEC'
+            spi_value: 958
       - name: "{{ sonic_ospfv3_interfaces_test_vars.vlan1 }}"
       - name: "{{ sonic_ospfv3_interfaces_test_vars.po1 }}"
         network: broadcast
+        ospfv3ipsec:
+          encryption:
+            authentication_algorithm: SHA256
+            authentication_key: "{{ sonic_ospfv3_interfaces_test_vars_keys.l4 }}"
+            authentication_key_encrypted: true
+            encryption_algorithm: "NULL"
+            encryption_type: "IPSEC"
+            spi_value: 491
 
   - name: test_case_del_02
     description: Delete OSPFv3 interface configurations for interfaces default address
@@ -144,17 +217,38 @@ sonic_ospfv3_interfaces_tests:
         area_id: 3.3.3.3
         cost: 20
         priority: 15
-      - name: "{{ sonic_ospfv3_interfaces_test_vars.vlan1 }}"
+
+      - name: "{{ sonic_ospfv3_interfaces_test_vars.vlan2 }}"
         area_id: 3.3.3.3
         cost: 20
+        ospfv3ipsec:
+          encryption:
+            spi_value: 830
+            encryption_type: 'IPSEC'
+            encryption_algorithm: 'AES_CBC_192'
+            encryption_key: "{{ sonic_ospfv3_interfaces_test_vars_keys.l6 }}"
+            encryption_key_encrypted: true
+            authentication_algorithm: 'SHA1'
+            authentication_key: "{{ sonic_ospfv3_interfaces_test_vars_keys.l7 }}"
+            authentication_key_encrypted: true
+
 
   - name: test_case_del_03
     description: Delete entire OSPFv3 for an interface.
     state: deleted
     input:
-      - name: "{{ interface7 }}"
-      - name: "{{ sonic_ospfv3_interfaces_test_vars.vlan2 }}"
-      - name: "{{ sonic_ospfv3_interfaces_test_vars.po2 }}"
+      - name: "{{ interface9 }}"
+        ospfv3ipsec:
+          encryption:
+            authentication_algorithm: 'MD5'
+            authentication_key: 'U2FsdGVkX18YF7GTSaFz25cM142ikx3vdltAb+ryG4cJe8PAVmn4lgZq8TDX9TDvsKMFogC+JaumKItGAR28lA=='
+            authentication_key_encrypted: true
+            encryption_algorithm: 'AES_CBC_128'
+            encryption_key: 'U2FsdGVkX1+RVU8e/t9tl/WgxdwLqE5ItVx3qyiviwc2jm5SvfH64yALBdASkG+piHyxZHn0JZGGQAb6Z6YnQg=='
+            encryption_key_encrypted: true
+            encryption_type: 'IPSEC'
+            spi_value: 493
+
 
   - name: test_case_05
     description: Add OSPFv3 interface configurations for interface level
@@ -171,17 +265,22 @@ sonic_ospfv3_interfaces_tests:
           enable: true
           bfd_profile: 'profile1'
         network: broadcast
-      - name: "{{ sonic_ospfv3_interfaces_test_vars.vlan1 }}"
-        area_id: 3.3.3.3
-        cost: 20
 
   - name: test_case_replace_01
     description: Replace existing OSPFv3 interface configurations for interface level
     state: replaced
     input:
       - name: "{{ sonic_ospfv3_interfaces_test_vars.vlan1 }}"
-        area_id: '3.3.3.3'
+        area_id: 3.3.3.3
         cost: 20
+        network: broadcast
+        ospfv3ipsec:
+          authentication:
+            spi_value: 952
+            authentication_type: 'IPSEC'
+            authentication_algorithm: 'MD5'
+            authentication_key: "{{ sonic_ospfv3_interfaces_test_vars_keys.l8}}"
+            authentication_key_encrypted: true
       - name: "{{ sonic_ospfv3_interfaces_test_vars.lo1 }}"
         network: point_to_point
         area_id: 4.4.4.4
@@ -199,7 +298,7 @@ sonic_ospfv3_interfaces_tests:
     state: replaced
     input:
       - name: "{{ sonic_ospfv3_interfaces_test_vars.vlan1 }}"
-        area_id: '3.3.3.3'
+        area_id: 3.3.3.3
         cost: 20
       - name: "{{ interface8 }}"
         network: point_to_point
@@ -210,7 +309,16 @@ sonic_ospfv3_interfaces_tests:
         hello_interval: 10
         dead_interval: 40
         mtu_ignore: true
-
+        ospfv3ipsec:
+          encryption:
+            spi_value: 832
+            encryption_type: 'IPSEC'
+            encryption_algorithm: 'DES'
+            encryption_key: "{{ sonic_ospfv3_interfaces_test_vars_keys.l9 }}"
+            encryption_key_encrypted: true
+            authentication_algorithm: 'SHA1'
+            authentication_key: "{{ sonic_ospfv3_interfaces_test_vars_keys.l10 }}"
+            authentication_key_encrypted: true
   - name: test_case_overridden_01
     description: Override entire OSPFv3 interface configurations
     state: overridden
@@ -221,6 +329,13 @@ sonic_ospfv3_interfaces_tests:
         bfd:
           enable: true
           bfd_profile: 'profile1'
+        ospfv3ipsec:
+          authentication:
+            spi_value: 400
+            authentication_type: 'IPSEC'
+            authentication_algorithm: 'SHA256'
+            authentication_key: "{{ sonic_ospfv3_interfaces_test_vars_keys.l11 }}"
+            authentication_key_encrypted: true
         network: broadcast
       - name: "{{ sonic_ospfv3_interfaces_test_vars.vlan1 }}"
         area_id: '3.3.3.3'
@@ -230,13 +345,23 @@ sonic_ospfv3_interfaces_tests:
     description: Override OSPFv3 interface configurations
     state: overridden
     input:
-      - name: "{{ sonic_ospfv3_interfaces_test_vars.po2 }}"
+      - name: "{{ sonic_ospfv3_interfaces_test_vars.po1 }}"
         area_id: '3.3.3.3'
         cost: 20
         network: broadcast
       - name: "{{ sonic_ospfv3_interfaces_test_vars.vlan2 }}"
         area_id: '3.3.3.3'
         cost: 20
+        ospfv3ipsec:
+          encryption:
+            spi_value: 893
+            encryption_type: 'IPSEC'
+            encryption_algorithm: '3DES'
+            encryption_key: "{{ sonic_ospfv3_interfaces_test_vars_keys.l12 }}"
+            encryption_key_encrypted: true
+            authentication_algorithm: 'SHA1'
+            authentication_key: "{{ sonic_ospfv3_interfaces_test_vars_keys.l13 }}"
+            authentication_key_encrypted: true
   - name: test_case_delete_all
     description: Delete entire OSPFv3 interface configurations
     state: deleted

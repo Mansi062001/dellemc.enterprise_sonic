@@ -13,6 +13,13 @@ merged_01:
           enable: true
           bfd_profile: 'profile1'
         network: broadcast
+        ospfv3ipsec:
+          authentication:
+            authentication_type: 'IPSEC'
+            authentication_algorithm: 'SHA1'
+            authentication_key: 'U2FsdGVkX18Dmg2PY5pefS+Px6uf3eusD3/p7geRI+CKbEhhu6dCz0LjkFfHpo30xkotd2RGEEbu3O8H1u/Hst8Em8ijgBzSVvXOiD9QbTQ='
+            authentication_key_encrypted: true
+            spi_value: 654
       - name: 'PortChannel100'
         area_id: '3.3.3.3'
         bfd:
@@ -21,6 +28,16 @@ merged_01:
       - name: 'Vlan100'
         area_id: '2.2.2.2'
         cost: 20
+        ospfv3ipsec:
+          encryption:
+            spi_value: 930
+            encryption_type: 'IPSEC'
+            encryption_algorithm: 'AES_CBC_128'
+            encryption_key: 'U2FsdGVkX19UE4yShWqmgOGiGQ1SPRHlcIBq4NhjFV7/88PcU3T6BJOgp53k/RxBaPMDfE8vCLIBxHYLz3hTUw'
+            encryption_key_encrypted: true
+            authentication_algorithm: 'MD5'
+            authentication_key: 'U2FsdGVkX1/qjdKFxbxoNVUX4fEqd2z1lxSXuZTOJDWRmSh523egxZoNq2QPLTNxRnrWtFyOpxydGQDj/96poQ=='
+            authentication_key_encrypted: true
     state: merged
   existing_ospfv3_config:
     - path: 'data/openconfig-interfaces:interfaces'
@@ -60,6 +77,18 @@ merged_01:
             config:
               enabled: true
               bfd-profile: 'profile1'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
+      method: 'patch'
+      data:
+        openconfig-ospfv3-ext:ospfv3:
+          ospfv3ipsec:
+            config:
+              authentication-type: 'IPSEC'
+              authentication-algorithm: 'SHA1'
+              authentication-key: 'U2FsdGVkX18Dmg2PY5pefS+Px6uf3eusD3/p7geRI+CKbEhhu6dCz0LjkFfHpo30xkotd2RGEEbu3O8H1u/Hst8Em8ijgBzSVvXOiD9QbTQ='
+              authentication-key-encrypted: true
+              spi-value: 654
+              operation: 'AUTHENTICATION'
     - path: '/data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
       method: 'patch'
       data:
@@ -81,6 +110,21 @@ merged_01:
           config:
             area-id: '2.2.2.2'
             metric: 20
+    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
+      method: 'patch'
+      data:
+        openconfig-ospfv3-ext:ospfv3:
+          ospfv3ipsec:
+            config:
+              spi-value: 930
+              operation: 'ENCRYPTION'
+              encryption-type: 'IPSEC'
+              encryption-algorithm: 'AES_CBC_128'
+              encryption-key: 'U2FsdGVkX19UE4yShWqmgOGiGQ1SPRHlcIBq4NhjFV7/88PcU3T6BJOgp53k/RxBaPMDfE8vCLIBxHYLz3hTUw'
+              encryption-key-encrypted: true
+              authentication-algorithm: 'MD5'
+              authentication-key: 'U2FsdGVkX1/qjdKFxbxoNVUX4fEqd2z1lxSXuZTOJDWRmSh523egxZoNq2QPLTNxRnrWtFyOpxydGQDj/96poQ=='
+              authentication-key-encrypted: true
 merged_02:
   module_args:
     config:
@@ -92,9 +136,26 @@ merged_02:
         bfd:
           enable: true
           bfd_profile: 'profile2'
+        ospfv3ipsec:
+          authentication:
+            authentication_type: 'IPSEC'
+            authentication_algorithm: 'MD5'
+            authentication_key: 'U2FsdGVkX1+uBXdla+5VbcZOL1P9XxEO8FFqcj7F0GRqay2rknbCOgJMG+xEV1zE+4PL1J9j95tsFsLzveGxoA=='
+            authentication_key_encrypted: true
+            spi_value: 700
       - name: 'Eth1/6'
         area_id: '4.4.4.4'
         cost: 15
+        ospfv3ipsec:
+          encryption:
+            spi_value: 800
+            encryption_type: 'IPSEC'
+            encryption_algorithm: 'DES'
+            encryption_key: 'U2FsdGVkX1/wo2Q7gecbeQb6WzCEMmKVymjSnZhtjuEVW74hxxiREMAAHYHuWG/NRH9WBUTnrTaMn2tTg/oxrg=='
+            encryption_key_encrypted: true
+            authentication_algorithm: 'SHA256'
+            authentication_key: 'U2FsdGVkX1+CQObK1oNA9mPTpuKDFQyBSzlUGPMzk/iXsiEFYPxpyzXlvSHVN8V0F37GEyx0JgB0lGICufyBhOnTwN+LJE0ZHjltdY1TVivW1w7wH8Zwnw4VgMBEDYiX'
+            authentication_key_encrypted: true
       - name: 'Vlan100'
         bfd:
           enable: true
@@ -136,6 +197,14 @@ merged_02:
                               config:
                                 enabled: true
                                 bfd-profile: 'profile1'
+                            ospfv3ipsec:
+                              operation: 'AUTHENTICATION'
+                              authentication:
+                                authentication_type: 'IPSEC'
+                                authentication_algorithm: 'SHA1'
+                                authentication_key: 'U2FsdGVkX18Dmg2PY5pefS+Px6uf3eusD3/p7geRI+CKbEhhu6dCz0LjkFfHpo30xkotd2RGEEbu3O8H1u/Hst8Em8ijgBzSVvXOiD9QbTQ='
+                                authentication_key_encrypted: true
+                                spi_value: 654
               - name: 'Eth1/6'
                 subinterfaces:
                   subinterface:
@@ -151,6 +220,17 @@ merged_02:
                             enable-bfd:
                               config:
                                 enabled: true
+                            ospfv3ipsec:
+                              operation: 'ENCRYPTION'
+                              encryption:
+                                spi_value: 930
+                                encryption_type: 'IPSEC'
+                                encryption_algorithm: 'AES-CBC-128'
+                                encryption_key: 'U2FsdGVkX19UE4yShWqmgOGiGQ1SPRHlcIBq4NhjFV7/88PcU3T6BJOgp53k/RxBaPMDfE8vCLIBxHYLz3hTUw=='
+                                encryption_key_encrypted: true
+                                authentication_algorithm: 'MD5'
+                                authentication_key: 'U2FsdGVkX1/qjdKFxbxoNVUX4fEqd2z1lxSXuZTOJDWRmSh523egxZoNq2QPLTNxRnrWtFyOpxydGQDj/96poQ=='
+                                authentication_key_encrypted: true
               - name: 'Vlan100'
                 openconfig-vlan:routed-vlan:
                   openconfig-if-ip:ipv6:
@@ -158,6 +238,18 @@ merged_02:
                       config:
                         area-id: '2.2.2.2'
                         metric: 20
+                        ospfv3ipsec:
+                          config:
+                            operation: 'ENCRYPTION'
+                            encryption:
+                              spi-value: 930
+                              encryption-type: 'IPSEC'
+                              encryption-algorithm: 'AES-CBC-128'
+                              encryption-key: 'U2FsdGVkX19UE4yShWqmgOGiGQ1SPRHlcIBq4NhjFV7/88PcU3T6BJOgp53k/RxBaPMDfE8vCLIBxHYLz3hTUw'
+                              encryption-key-encrypted: true
+                              authentication-algorithm: 'MD5'
+                              authentication-key: 'U2FsdGVkX1/qjdKFxbxoNVUX4fEqd2z1lxSXuZTOJDWRmSh523egxZoNq2QPLTNxRnrWtFyOpxydGQDj/96poQ=='
+                              authentication-key-encrypted: true
               - name: 'Loopback100'
                 subinterfaces:
                   subinterface:
@@ -170,6 +262,21 @@ merged_02:
           config:
             area-id: '4.4.4.4'
             metric: 15
+    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
+      method: 'patch'
+      data:
+        openconfig-ospfv3-ext:ospfv3:
+          ospfv3ipsec:
+            config:
+              spi-value: 800
+              operation: 'ENCRYPTION'
+              encryption-type: 'IPSEC'
+              encryption-algorithm: 'DES'
+              encryption-key: 'U2FsdGVkX1/wo2Q7gecbeQb6WzCEMmKVymjSnZhtjuEVW74hxxiREMAAHYHuWG/NRH9WBUTnrTaMn2tTg/oxrg=='
+              encryption-key-encrypted: true
+              authentication-algorithm: 'SHA256'
+              authentication-key: 'U2FsdGVkX1+CQObK1oNA9mPTpuKDFQyBSzlUGPMzk/iXsiEFYPxpyzXlvSHVN8V0F37GEyx0JgB0lGICufyBhOnTwN+LJE0ZHjltdY1TVivW1w7wH8Zwnw4VgMBEDYiX'
+              authentication-key-encrypted: true
     - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
       method: 'patch'
       data:
@@ -206,6 +313,18 @@ merged_02:
             config:
               enabled: true
               bfd-profile: 'profile2'
+    - path: '/data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
+      method: 'patch'
+      data:
+        openconfig-ospfv3-ext:ospfv3:
+          ospfv3ipsec:
+            config:
+              authentication-type: 'IPSEC'
+              authentication-algorithm: 'MD5'
+              authentication-key: 'U2FsdGVkX1+uBXdla+5VbcZOL1P9XxEO8FFqcj7F0GRqay2rknbCOgJMG+xEV1zE+4PL1J9j95tsFsLzveGxoA=='
+              authentication-key-encrypted: true
+              spi-value: 700
+              operation: 'AUTHENTICATION'
     - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
       method: 'patch'
       data:
@@ -220,6 +339,7 @@ merged_02:
             config:
               bfd-profile: 'profile2'
               enabled: true
+
 deleted_01:
   module_args:
     config:
@@ -227,7 +347,184 @@ deleted_01:
       - name: 'Eth1/6'
         area_id: '4.4.4.4'
         cost: 15
+        ospfv3ipsec:
+          encryption:
+            spi_value: 800
+            encryption_type: 'IPSEC'
+            encryption_algorithm: 'DES'
+            encryption_key: 'U2FsdGVkX1/wo2Q7gecbeQb6WzCEMmKVymjSnZhtjuEVW74hxxiREMAAHYHuWG/NRH9WBUTnrTaMn2tTg/oxrg=='
+            encryption_key_encrypted: true
+            authentication_algorithm: 'SHA256'
+            authentication_key: 'U2FsdGVkX1+CQObK1oNA9mPTpuKDFQyBSzlUGPMzk/iXsiEFYPxpyzXlvSHVN8V0F37GEyx0JgB0lGICufyBhOnTwN+LJE0ZHjltdY1TVivW1w7wH8Zwnw4VgMBEDYiX'
+            authentication_key_encrypted: true
       - name: 'PortChannel100'
+      - name: 'Vlan100'
+        bfd:
+          enable: true
+        network: 'broadcast'
+        ospfv3ipsec:
+          encryption:
+            spi_value: 930
+            encryption_type: 'IPSEC'
+            encryption_algorithm: 'AES_CBC_128'
+            encryption_key: 'U2FsdGVkX19UE4yShWqmgOGiGQ1SPRHlcIBq4NhjFV7/88PcU3T6BJOgp53k/RxBaPMDfE8vCLIBxHYLz3hTUw'
+            encryption_key_encrypted: true
+            authentication_algorithm: 'MD5'
+            authentication_key: 'U2FsdGVkX1/qjdKFxbxoNVUX4fEqd2z1lxSXuZTOJDWRmSh523egxZoNq2QPLTNxRnrWtFyOpxydGQDj/96poQ=='
+            authentication_key_encrypted: true
+    state: deleted
+  existing_ospfv3_config:
+    - path: 'data/openconfig-interfaces:interfaces'
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interfaces:
+            interface:
+              - name: 'Eth1/5'
+                subinterfaces:
+                  subinterface:
+                    - index: 0
+                      openconfig-if-ip:ipv6:
+                        openconfig-ospfv3-ext:ospfv3:
+                          config:
+                            area-id: '2.2.2.2'
+                            dead-interval: 40
+                            hello-interval: 10
+                            metric: 20
+                            mtu-ignore: true
+                            priority: 20
+                            enable-bfd:
+                              config:
+                                enabled: true
+                                bfd-profile: 'profile1'
+                            ospfv3ipsec:
+                              authentication:
+                                authentication_type: 'IPSEC'
+                                authentication_algorithm: 'SHA1'
+                                authentication_key: 'U2FsdGVkX18Dmg2PY5pefS+Px6uf3eusD3/p7geRI+CKbEhhu6dCz0LjkFfHpo30xkotd2RGEEbu3O8H1u/Hst8Em8ijgBzSVvXOiD9QbTQ='
+                                authentication_key_encrypted: true
+                                spi_value: 654
+                              operation: 'AUTHENTICATION'
+              - name: 'Eth1/6'
+                subinterfaces:
+                  subinterface:
+                    - index: 0
+                      openconfig-if-ip:ipv6:
+                        openconfig-ospfv3-ext:ospfv3:
+                          config:
+                            area-id: '4.4.4.4'
+                            metric: 15
+                            ospfv3ipsec:
+                              config:
+                                operation: 'ENCRYPTION'
+                                encryption:
+                                  spi-value: 800
+                                  encryption-type: 'IPSEC'
+                                  encryption-algorithm: 'DES'
+                                  encryption-key: 'U2FsdGVkX1/wo2Q7gecbeQb6WzCEMmKVymjSnZhtjuEVW74hxxiREMAAHYHuWG/NRH9WBUTnrTaMn2tTg/oxrg=='
+                                  encryption-key-encrypted: true
+                                  authentication-algorithm: 'SHA256'
+                                  authentication-key: 'U2FsdGVkX1+CQObK1oNA9mPTpuKDFQyBSzlUGPMzk/iXsiEFYPxpyzXlvSHVN8V0F37GEyx0JgB0lGICufyBhOnTwN+LJE0ZHjltdY1TVivW1w7wH8Zwnw4VgMBEDYiX'
+                                  authentication-key-encrypted: true
+              - name: 'PortChannel100'
+                subinterfaces:
+                  subinterface:
+                    - index: 0
+                      openconfig-if-ip:ipv6:
+                        openconfig-ospfv3-ext:ospfv3:
+                          config:
+                            area-id: '2.2.2.2'
+                            metric: 20
+                            priority: 20
+                            network-type: 'POINT_TO_POINT_NETWORK'
+                            enable-bfd:
+                              config:
+                                enabled: true
+                            ospfv3ipsec:
+                              config:
+                                authentication:
+                                  authentication-type: 'IPSEC'
+                                  authentication-algorithm: 'MD5'
+                                  authentication-key: 'U2FsdGVkX1+uBXdla+5VbcZOL1P9XxEO8FFqcj7F0GRqay2rknbCOgJMG+xEV1zE+4PL1J9j95tsFsLzveGxoA=='
+                                  authentication-key-encrypted: true
+                                  spi-value: 700
+                                operation: 'AUTHENTICATION'
+              - name: 'Vlan100'
+                openconfig-vlan:routed-vlan:
+                  openconfig-if-ip:ipv6:
+                    openconfig-ospfv3-ext:ospfv3:
+                      config:
+                        area-id: '2.2.2.2'
+                        metric: 20
+                        network-type: 'BROADCAST_NETWORK'
+                        enable-bfd:
+                          config:
+                            enabled: true
+                            bfd-profile: 'profile2'
+                        ospfv3ipsec:
+                          config:
+                            operation: 'ENCRYPTION'
+                            encryption:
+                              spi-value: 930
+                              encryption-type: 'IPSEC'
+                              encryption-algorithm: 'AES_CBC_128'
+                              encryption-key: 'U2FsdGVkX19UE4yShWqmgOGiGQ1SPRHlcIBq4NhjFV7/88PcU3T6BJOgp53k/RxBaPMDfE8vCLIBxHYLz3hTUw'
+                              encryption-key-encrypted: true
+                              authentication-algorithm: 'MD5'
+                              authentication-key: 'U2FsdGVkX1/qjdKFxbxoNVUX4fEqd2z1lxSXuZTOJDWRmSh523egxZoNq2QPLTNxRnrWtFyOpxydGQDj/96poQ=='
+                              authentication-key-encrypted: true
+              - name: 'Loopback100'
+                subinterfaces:
+                  subinterface:
+                    - index: 0
+                      openconfig-if-ip:ipv6:
+                        openconfig-ospfv3-ext:ospfv3:
+                          config:
+                            area-id: '2.2.2.2'
+                            metric: 20
+                            priority: 20
+                            hello-interval: 10
+                            dead-interval: 40
+                            mtu-ignore: true
+                            network-type: 'POINT_TO_POINT_NETWORK'
+                            enable-bfd:
+                              config:
+                                enabled: true
+                                bfd-profile: 'profile1'
+  expected_config_requests:
+    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/area-id'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/metric'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
+      method: 'delete'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/network-type'
+      method: 'delete'
+
+deleted_02:
+  module_args:
+    config:
+      - name: 'Eth1/5'
+        ospfv3ipsec:
+          authentication:
+            authentication_type: 'IPSEC'
+            authentication_algorithm: 'SHA1'
+            authentication_key: 'U2FsdGVkX18Dmg2PY5pefS+Px6uf3eusD3/p7geRI+CKbEhhu6dCz0LjkFfHpo30xkotd2RGEEbu3O8H1u/Hst8Em8ijgBzSVvXOiD9QbTQ='
+            authentication_key_encrypted: true
+            spi_value: 654
+      - name: 'Eth1/6'
+        area_id: '4.4.4.4'
+        cost: 15
+      - name: 'PortChannel100'
+        ospfv3ipsec:
+          authentication:
+            authentication_type: 'IPSEC'
+            authentication_algorithm: 'MD5'
+            authentication_key: 'U2FsdGVkX1+uBXdla+5VbcZOL1P9XxEO8FFqcj7F0GRqay2rknbCOgJMG+xEV1zE+4PL1J9j95tsFsLzveGxoA=='
+            authentication_key_encrypted: true
+            spi_value: 700
       - name: 'Vlan100'
         bfd:
           enable: true
@@ -311,107 +608,11 @@ deleted_01:
                                 enabled: true
                                 bfd-profile: 'profile1'
   expected_config_requests:
-    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'delete'
     - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/area-id'
       method: 'delete'
     - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/metric'
       method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'delete'
     - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/network-type'
-      method: 'delete'
-deleted_02:
-  module_args:
-    config:
-    state: deleted
-  existing_ospfv3_config:
-    - path: 'data/openconfig-interfaces:interfaces'
-      response:
-        code: 200
-        value:
-          openconfig-interfaces:interfaces:
-            interface:
-              - name: 'Eth1/5'
-                subinterfaces:
-                  subinterface:
-                    - index: 0
-                      openconfig-if-ip:ipv6:
-                        openconfig-ospfv3-ext:ospfv3:
-                          config:
-                            area-id: '2.2.2.2'
-                            dead-interval: 40
-                            hello-interval: 10
-                            metric: 20
-                            mtu-ignore: true
-                            priority: 20
-                            enable-bfd:
-                              config:
-                                enabled: true
-                                bfd-profile: 'profile1'
-              - name: 'Eth1/6'
-                subinterfaces:
-                  subinterface:
-                    - index: 0
-                      openconfig-if-ip:ipv6:
-                        openconfig-ospfv3-ext:ospfv3:
-                          config:
-                            area-id: '4.4.4.4'
-                            metric: 15
-              - name: 'PortChannel100'
-                subinterfaces:
-                  subinterface:
-                    - index: 0
-                      openconfig-if-ip:ipv6:
-                        openconfig-ospfv3-ext:ospfv3:
-                          config:
-                            area-id: '2.2.2.2'
-                            metric: 20
-                            priority: 20
-                            network-type: 'POINT_TO_POINT_NETWORK'
-                            enable-bfd:
-                              config:
-                                enabled: true
-              - name: 'Vlan100'
-                openconfig-vlan:routed-vlan:
-                  openconfig-if-ip:ipv6:
-                    openconfig-ospfv3-ext:ospfv3:
-                      config:
-                        area-id: '2.2.2.2'
-                        metric: 20
-                        network-type: 'BROADCAST_NETWORK'
-                        enable-bfd:
-                          config:
-                            enabled: true
-                            bfd-profile: 'profile2'
-              - name: 'Loopback100'
-                subinterfaces:
-                  subinterface:
-                    - index: 0
-                      openconfig-if-ip:ipv6:
-                        openconfig-ospfv3-ext:ospfv3:
-                          config:
-                            area-id: '2.2.2.2'
-                            metric: 20
-                            priority: 20
-                            hello-interval: 10
-                            dead-interval: 40
-                            mtu-ignore: true
-                            network-type: 'POINT_TO_POINT_NETWORK'
-                            enable-bfd:
-                              config:
-                                enabled: true
-                                bfd-profile: 'profile1'
-  expected_config_requests:
-    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
       method: 'delete'
 replaced_01:
   module_args:
@@ -426,6 +627,14 @@ replaced_01:
         dead_interval: 40
         mtu_ignore: true
         priority: 20
+        ospfv3ipsec:
+          encryption:
+            spi_value: 499
+            encryption_type: 'IPSEC'
+            encryption_algorithm: 'NULL'
+            authentication_algorithm: 'SHA256'
+            authentication_key: 'U2FsdGVkX1+TShbUA+sOGL3Vy8ghY7uGtYtEFhgY7iiCYhdx76mbHx+4FVvY8+r0e6TqiYIX1iDbhQ/dPBuFlYvOm6+PgIFzsqRzyBiiU/RPp0r0GT5nHkQgpr8xErAT'
+            authentication_key_encrypted: true
       - name: 'Loopback100'
         network: broadcast
         bfd:
@@ -459,6 +668,13 @@ replaced_01:
                               config:
                                 enabled: true
                                 bfd-profile: 'profile1'
+                            ospfv3ipsec:
+                              operation: 'AUTHENTICATION'
+                              authentication:
+                                authentication-type: 'IPSEC'
+                                authentication-algorithm: 'SHA1'
+                                authentication-key: 'U2FsdGVkX18Dmg2PY5pefS+Px6uf3eusD3/p7geRI+CKbEhhu6dCz0LjkFfHpo30xkotd2RGEEbu3O8H1u/Hst8Em8ijgBzSVvXOiD9QbTQ='
+                                authentication-key-encrypted: true
               - name: 'Eth1/6'
                 subinterfaces:
                   subinterface:
@@ -527,6 +743,19 @@ replaced_01:
             config:
               enabled: true
               bfd-profile: 'profile3'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
+      method: 'patch'
+      data:
+        openconfig-ospfv3-ext:ospfv3:
+          ospfv3ipsec:
+            config:
+              spi-value: 499
+              operation: 'ENCRYPTION'
+              encryption-type: 'IPSEC'
+              encryption-algorithm: 'NULL'
+              authentication-algorithm: 'SHA256'
+              authentication-key: 'U2FsdGVkX1+TShbUA+sOGL3Vy8ghY7uGtYtEFhgY7iiCYhdx76mbHx+4FVvY8+r0e6TqiYIX1iDbhQ/dPBuFlYvOm6+PgIFzsqRzyBiiU/RPp0r0GT5nHkQgpr8xErAT'
+              authentication-key-encrypted: true
     - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
       method: 'patch'
       data:
@@ -541,6 +770,14 @@ replaced_01:
             config:
               enabled: true
               bfd-profile: 'profile1'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
+      method: 'patch'
+      data:
+        openconfig-ospfv3-ext:ospfv3:
+          config:
+            area-id: '1.1.1.1'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/metric'
+      method: 'delete'
     - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/area-id'
       method: 'delete'
     - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/dead-interval'
@@ -552,14 +789,6 @@ replaced_01:
     - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/mtu-ignore'
       method: 'delete'
     - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/priority'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'patch'
-      data:
-        openconfig-ospfv3-ext:ospfv3:
-          config:
-            area-id: '1.1.1.1'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/metric'
       method: 'delete'
 overridden_01:
   module_args:
@@ -582,6 +811,13 @@ overridden_01:
       - name: 'Vlan100'
         area_id: '1.1.1.1'
         network: broadcast
+        ospfv3ipsec:
+          authentication:
+            spi_value: 754
+            authentication_type: 'IPSEC'
+            authentication_algorithm: 'MD5'
+            authentication_key: 'U2FsdGVkX1/qjdKFxbxoNVUX4fEqd2z1lxSXuZTOJDWRmSh523egxZoNq2QPLTNxRnrWtFyOpxydGQDj/96poQ=='
+            authentication_key_encrypted: true
     state: overridden
   existing_ospfv3_config:
     - path: 'data/openconfig-interfaces:interfaces'
@@ -607,6 +843,15 @@ overridden_01:
                               config:
                                 enabled: true
                                 bfd-profile: 'profile1'
+                            ospfv3ipsec:
+                              operation: 'ENCRYPTION'
+                              encryption:
+                                spi-value: 499
+                                encryption-type: 'IPSEC'
+                                encryption-algorithm: 'NULL'
+                                authentication-algorithm: 'SHA256'
+                                authentication-key: 'U2FsdGVkX1+TShbUA+sOGL3Vy8ghY7uGtYtEFhgY7iiCYhdx76mbHx+4FVvY8+r0e6TqiYIX1iDbhQ/dPBuFlYvOm6+PgIFzsqRzyBiiU/RPp0r0GT5nHkQgpr8xErAT'
+                                authentication-key-encrypted: true
               - name: 'Eth1/6'
                 subinterfaces:
                   subinterface:
@@ -711,5 +956,17 @@ overridden_01:
         openconfig-ospfv3-ext:ospfv3:
           config:
             area-id: '1.1.1.1'
+    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
+      method: 'patch'
+      data:
+        openconfig-ospfv3-ext:ospfv3:
+          ospfv3ipsec:
+            config:
+              spi-value: 754
+              operation: 'AUTHENTICATION'
+              authentication-type: 'IPSEC'
+              authentication-algorithm: 'MD5'
+              authentication-key: 'U2FsdGVkX1/qjdKFxbxoNVUX4fEqd2z1lxSXuZTOJDWRmSh523egxZoNq2QPLTNxRnrWtFyOpxydGQDj/96poQ=='
+              authentication-key-encrypted: true
     - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/metric'
       method: 'delete'
