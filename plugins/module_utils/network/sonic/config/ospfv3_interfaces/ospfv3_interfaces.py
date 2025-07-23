@@ -335,7 +335,6 @@ class Ospfv3_interfaces(ConfigBase):
 
     def get_create_ospf_interfaces_requests(self, commands, have):
         requests = []
-        bfd_dict = {}
 
         if not commands:
             return requests
@@ -349,7 +348,6 @@ class Ospfv3_interfaces(ConfigBase):
             intf_name, sub_intf = self.get_ospf_if_and_subif(name)
             ospf_path = self.get_ospf_uri(intf_name, sub_intf)
             ospf_attr_configs = {}
-            network_type = ""
 
             area_id = cmd.get('area_id')
             have_area_id = None
@@ -368,17 +366,17 @@ class Ospfv3_interfaces(ConfigBase):
             self.update_dict(cmd, ospf_attr_configs, 'transmit_delay', 'transmit-delay')
             self.update_dict(cmd, ospf_attr_configs, 'passive', 'passive')
             self.update_dict(cmd, ospf_attr_configs, 'advertise', 'advertise')
+            
+            if 'bfd' in cmd:
+                attr = 'bfd'
+                self.update_dict(cmd[attr], bfd_dict, 'enable', 'enabled')
+                self.update_dict(cmd[attr], bfd_dict, 'bfd_profile', 'bfd-profile')
 
             network_type = ""
             if 'network' in cmd:
                 network_type = cmd.get('network')
                 network_type = network_type.upper() + '_NETWORK'
                 ospf_attr_configs['network-type'] = network_type
-
-            if 'bfd' in cmd:
-                attr = 'bfd'
-                self.update_dict(cmd[attr], bfd_dict, 'enable', 'enabled')
-                self.update_dict(cmd[attr], bfd_dict, 'bfd_profile', 'bfd-profile')
 
             if 'ospfv3ipsec' in cmd:
                 attr = 'ospfv3ipsec'
@@ -441,8 +439,6 @@ class Ospfv3_interfaces(ConfigBase):
         if not commands:
             return commands_del, requests
         for cmd in commands:
-            # import epdb
-            # epdb.serve(port=11011)
             del_cmd = {}
             name = cmd.get('name')
             intf_name, sub_intf = self.get_ospf_if_and_subif(name)
@@ -488,9 +484,9 @@ class Ospfv3_interfaces(ConfigBase):
                             requests.append({'path': path, 'method': DELETE})
                             del_cmd[attr] = match_ospf_attrs
 
-            if del_cmd:
-                del_cmd['name'] = name
-                commands_del.append(del_cmd)
+                if del_cmd:
+                    del_cmd['name'] = name
+                    commands_del.append(del_cmd)
 
         return commands_del, requests
 
