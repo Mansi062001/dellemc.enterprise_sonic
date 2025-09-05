@@ -73,7 +73,6 @@ class Ospfv3_interfacesFacts(object):
         except ConnectionError as exc:
             self._module.fail_json(msg=str(exc), code=exc.code)
         ospf_configs = []
-
         if "openconfig-interfaces:interfaces" in response[0][1]:
             interfaces = response[0][1].get("openconfig-interfaces:interfaces", {})
             if interfaces.get('interface'):
@@ -83,6 +82,9 @@ class Ospfv3_interfacesFacts(object):
                 if intf_name == "eth0":
                     continue
                 ospf_config = {}
+                ospf_ipsec_config = {}
+                auth_cfg = {}
+                esp_cfg = {}
                 if interface.get('openconfig-vlan:routed-vlan'):
                     ospf = interface.get('openconfig-vlan:routed-vlan', {})
                 else:
@@ -93,6 +95,7 @@ class Ospfv3_interfacesFacts(object):
                         ospf_int = ipv6.get('openconfig-ospfv3-ext:ospfv3', {})
                         if ospf_int:
                             config = ospf_int.get('config', {})
+                            ospf_ipsec = ospf_int.get('ospfv3ipsec', {})
                             if config:
                                 self.update_dict(ospf_config, 'area_id', config.get('area-id'))
                                 self.update_dict(ospf_config, 'cost', config.get('metric'))
@@ -115,9 +118,45 @@ class Ospfv3_interfacesFacts(object):
                                     self.update_dict(bfd_cfg, 'enable', cfg.get('enabled'))
                                     self.update_dict(bfd_cfg, 'bfd_profile', cfg.get('bfd-profile'))
                                     self.update_dict(ospf_config, 'bfd', bfd_cfg)
+
+                            if ospf_ipsec :
+                                config = ospf_ipsec.get('config', {})
+                                if config:
+                                    if 'operation' in config:
+                                        op_config_operation = config.get('operation')
+                                        # ospf_ipsec_config['operation'] = op_config_operation
+                                    if op_config_operation == 'AUTHENTICATION':
+                                        self.update_dict(auth_cfg, 'authentication_type', config.get('authentication-type'))
+                                        self.update_dict(auth_cfg, 'spi_value', config.get('spi-value'))
+                                        self.update_dict(auth_cfg, 'authentication_algorithm', config.get('authentication-algorithm'))
+                                        self.update_dict(auth_cfg, 'authentication_key', config.get('authentication-key'))
+                                        self.update_dict(auth_cfg, 'authentication_key_encrypted', config.get('authentication-key-encrypted'))
+                                        ospf_ipsec_config['authentication'] = auth_cfg
+                                    if op_config_operation == 'ENCRYPTION':
+                                        if config.get('encryption-algorithm') == 'NULL':
+                                            self.update_dict(esp_cfg, 'encryption_algorithm', config.get('encryption-algorithm'))
+                                            self.update_dict(esp_cfg, 'spi_value', config.get('spi-value'))
+                                            self.update_dict(esp_cfg, 'encryption_type', config.get('encryption-type'))
+                                            self.update_dict(esp_cfg, 'authentication_algorithm', config.get('authentication-algorithm'))
+                                            self.update_dict(esp_cfg, 'authentication_key', config.get('authentication-key'))
+                                            self.update_dict(esp_cfg, 'authentication_key_encrypted', config.get('authentication-key-encrypted'))
+                                            ospf_ipsec_config['encryption'] = esp_cfg
+                                        else:
+                                            self.update_dict(esp_cfg, 'encryption_algorithm', config.get('encryption-algorithm'))
+                                            self.update_dict(esp_cfg, 'spi_value', config.get('spi-value'))
+                                            self.update_dict(esp_cfg, 'encryption_type', config.get('encryption-type'))
+                                            self.update_dict(esp_cfg, 'encryption_key', config.get('encryption-key'))
+                                            self.update_dict(esp_cfg, 'encryption_key_encrypted', config.get('encryption-key-encrypted'))
+                                            self.update_dict(esp_cfg, 'authentication_algorithm', config.get('authentication-algorithm'))
+                                            self.update_dict(esp_cfg, 'authentication_key', config.get('authentication-key'))
+                                            self.update_dict(esp_cfg, 'authentication_key_encrypted', config.get('authentication-key-encrypted'))
+                                            ospf_ipsec_config['encryption'] = esp_cfg
+
                 if ospf_config:
                     ospf_config['name'] = intf_name
-                    ospf_configs.append(ospf_config)
+                    if ospf_ipsec_config:
+                        ospf_config['ospfv3ipsec'] = ospf_ipsec_config
+                ospf_configs.append(ospf_config)
 
         return ospf_configs
 

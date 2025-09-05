@@ -100,6 +100,127 @@ options:
             description:
               - Configure OSPFv3 transmit delay (1 to 65535).
             type: int
+          ospfv3ipsec:
+            description:
+              - Configure OSPFv3 IPsec on interfaces.
+              - I(authentication) and I(encryption) are mutually exclusive.
+            type: dict
+            suboptions:
+              authentication:
+                description:
+                  -  Configure OSPFv3 IPsec authentication.
+                type: dict
+                suboptions:
+                  spi_value:
+                    description:
+                      - Configure a unique security policy index (SPI) value, from 256 to 4294967295.
+                    type: int
+                    required: true
+                  authentication_type:
+                    description:
+                      - Configure OSPFv3 IPsec authentication type.
+                    type: str
+                    required: true
+                    choices:
+                      - IPSEC
+                  authentication_algorithm:
+                    description:
+                      - Configure OSPFv3 IPsec authentication algorithm
+                      - C(MD5) - Enable message digest 5 (MD5) authentication.
+                      - C(SHA1) - Enable secure hash algorithm 1 (SHA-1) authentication.
+                      - C(SHA256) - Enable secure hash algorithm 256 (SHA-256) authentication.
+                    type: str
+                    required: true
+                    choices:
+                      - MD5
+                      - SHA1
+                      - SHA256
+                  authentication_key:
+                    description:
+                      - Configure OSPFv3 IPsec authentication key.
+                      - Authentication key can be 32 ,40 or 64character long depending upon authentication type.
+                      - Authentication key will be 32 character long hexstring for MD5 authentication type.
+                      - Authentication key will be 40 character long hexstring for SHA1 authentication type.
+                      - Authentication key will be 64 character long hexstring for SHA256 authentication type.
+                    type: str
+                    required: true
+                  authentication_key_encrypted:
+                    description:
+                      - Indicates whether the authentication key is encrypted text.
+                    type: bool
+                    required: true
+              encryption:
+                description:
+                  - Configure OSPFv3 IPsec encryption.
+                type: dict
+                suboptions:
+                  spi_value:
+                    description:
+                      - Configure a unique security policy index (SPI) value, from 256 to 4294967295.
+                    type: int
+                    required: true
+                  encryption_type:
+                    description:
+                      - Configure OSPFv3 IPsec encryption type.
+                    type: str
+                    required: true
+                    choices:
+                      - IPSEC
+                  encryption_algorithm:
+                    description:
+                      - Configure OSPFv3 IPsec encryption algorithm.
+                      - C(3DES) - Enable triple DES encryption.
+                      - C(DES) - Enable DES encryption.
+                      - C(AES_CBC_128) - Enable AES-CBC-128 encryption.
+                      - C(AES_CBC_192) - Enable AES-CBC-192 encryption.
+                      - C(NULL) - NULL encryption
+                    type: str
+                    required: true
+                    choices:
+                      - 'DES'
+                      - '3DES'
+                      - 'AES_CBC_128'
+                      - 'AES_CBC_192'
+                      - 'NULL'
+                  encryption_key:
+                    description:
+                      - Encryption key can be of varied length depending upon the encryption algorithm.
+                      - Encryption key will be 48 character long hexstring for 3DES encryption algorithm.
+                      - Encryption key will be 16 character long hexstring for DES encryption algorithm.
+                      - Encryption key will be 32 character long hexstring for AES-CBC-128 encryption algorithm.
+                      - Encryption key will be 48 character long hexstring for AES-CBC-192 encryption algorithm.
+                      - Encryption key is not required for NULL is specified as  encryption algorithm.
+                    type: str
+                  encryption_key_encrypted:
+                    description:
+                      - Indicates whether the encryption key is encrypted text.
+                    type: bool
+                  authentication_algorithm:
+                    description:
+                      - Configure OSPFv3 IPsec authentication algorithm
+                      - C(MD5) - Enable message digest 5 (MD5) authentication.
+                      - C(SHA1) - Enable secure hash algorithm 1 (SHA-1) authentication.
+                      - C(SHA256) - Enable secure hash algorithm 256 (SHA-256) authentication.
+                    type: str
+                    required: true
+                    choices:
+                      - MD5
+                      - SHA1
+                      - SHA256
+                  authentication_key:
+                    description:
+                      - Configure OSPFv3 IPsec authentication key.
+                      - Authentication key can be 32, 40 or 64 character long depending upon authentication type.
+                      - Authentication key will be 32 character long hexstring for MD5 authentication type.
+                      - Authentication key will be 40 character long hexstring for SHA1 authentication type.
+                      - Authentication key will be 64 character long hexstring for SHA256 authentication type.
+                    type: str
+                    required: true
+                  authentication_key_encrypted:
+                    description:
+                      - Indicates whether the authentication key is encrypted text.
+                    type: bool
+                    required: true
       state:
         description:
           - Specifies the operation to be performed on the OSPFv3 interfaces configured on the device.
@@ -112,6 +233,7 @@ options:
         type: str
         default: merged
         choices: ['merged', 'deleted', 'replaced', 'overridden']
+
 """
 EXAMPLES = """
 # Using deleted
@@ -133,15 +255,22 @@ EXAMPLES = """
 # ipv6 ospfv3 network point-to-point
 # ipv6 ospfv3 priority 20
 # ipv6 ospfv3 passive
+# ipv6 ospfv3 authentication ipsec spi 276 md5
+# U2FsdGVkX18YF7GTSaFz25cM142ikx3vdltAb+ryG4cJe8PAVmn4lgZq8TDX9TDvsKMFogC+JaumKItGAR28lA== authentication-key-encrypted
 # !
 # interface Eth1/2
 # ipv6 ospfv3 bfd
 # ipv6 ospfv3 network point-to-point
+# ipv6 ospfv3 encryption ipsec spi 9999 esp des U2FsdGVkX1+a0nn/SRCog1Gad6cE9qvAR6rgrDE0DAyLl8XbqkVh3DkHqhnxlSZO encryption-key-encrypted
+# md5 U2FsdGVkX18O/Jz5opNz/SLjwq9+UaXnWiItWLtsgPaCxbp+J7TO6+MPb1hx/idGWjJ/QpAjiHVButAUwEjHbA== authentication-key-encrypted
+
 # !
 # interface Eth1/3
 # ipv6 ospfv3 bfd
 # ipv6 ospfv3 network point-to-point
 # ipv6 ospfv3 area 3.3.3.3
+# ipv6 ospfv3 encryption ipsec spi 555 esp null sha1
+# U2FsdGVkX18CeqRGe0yw9MYx7auhvoudMpnTkBjQhMzJs/4VGMQnlhCndvFdoJHe2GmMEPiqjxp940cOKrogdQ== authentication-key-encrypted
 # !
 # sonic#
 
@@ -159,10 +288,35 @@ EXAMPLES = """
           enable: true
           bfd_profile: 'profile2'
         network: point_to_point
+        ospfv3ipsec:
+          authentication:
+            spi_value: 276
+            authentication_type: 'IPSEC'
+            authentication_algorithm: 'MD5'
+            authentication_key: 'U2FsdGVkX18YF7GTSaFz25cM142ikx3vdltAb+ryG4cJe8PAVmn4lgZq8TDX9TDvsKMFogC+JaumKItGAR28lA=='
+            authentication_key_encrypted: true
       - name: 'Eth1/2'
         bfd:
           enable: true
+        ospfv3ipsec:
+          encryption:
+            spi_value: 9999
+            encryption_type: 'IPSEC'
+            encryption_algorithm: 'DES'
+            encryption_key: 'U2FsdGVkX1+a0nn/SRCog1Gad6cE9qvAR6rgrDE0DAyLl8XbqkVh3DkHqhnxlSZO'
+            encryption_key_encrypted: true
+            authentication_algorithm: 'MD5'
+            authentication_key: 'U2FsdGVkX18O/Jz5opNz/SLjwq9+UaXnWiItWLtsgPaCxbp+J7TO6+MPb1hx/idGWjJ/QpAjiHVButAUwEjHbA=='
+            authentication_key_encrypted: true
       - name: 'Eth1/3'
+        ospfv3ipsec:
+          encryption:
+            spi_value: 555
+            encryption_type: 'IPSEC'
+            encryption_algorithm: 'NULL'
+            authentication_algorithm: 'SHA1'
+            authentication_key: 'U2FsdGVkX18CeqRGe0yw9MYx7auhvoudMpnTkBjQhMzJs/4VGMQnlhCndvFdoJHe2GmMEPiqjxp940cOKrogdQ=='
+            authentication_key_encrypted: true
     state: deleted
 
 # After state:
@@ -201,10 +355,14 @@ EXAMPLES = """
 # ipv6 ospfv3 network point-to-point
 # ipv6 ospfv3 priority 20
 # ipv6 ospfv3 passive
+# ipv6 ospfv3 authentication ipsec spi 388 sha1
+# U2FsdGVkX18gierkTwkumRf/3zPOdum+4LZd9RIii5Sr12S5R4oEZY/a98VIfiWkEnXlEqGl0NQei1FVnk0Qvg== authentication-key-encrypted
 # !
 # interface Eth1/2
 # ipv6 ospfv3 bfd
 # ipv6 ospfv3 network point-to-point
+# ipv6 ospfv3 authentication ipsec spi 484
+# md5 U2FsdGVkX1/VZuJrAQKgRuitc4xDJYAfUUDA6ADg8U1N9PUL3dUXn1FajshSgcuuGMvvjCemkdqldqLsteyGjg== authentication-key-encrypted
 # !
 # interface Eth1/3
 # ipv6 ospfv3 bfd
@@ -217,9 +375,24 @@ EXAMPLES = """
   sonic_ospfv3_interfaces:
     config:
       - name: 'Eth1/1'
+        ospfv3ipsec:
+          authentication:
+            spi_value: 388
+            authentication_type: 'IPSEC'
+            authentication_algorithm: 'SHA1'
+            authentication_key: 'U2FsdGVkX18gierkTwkumRf/3zPOdum+4LZd9RIii5Sr12S5R4oEZY/a98VIfiWkEnXlEqGl0NQei1FVnk0Qvg=='
+            authentication_key_encrypted: true
       - name: 'Eth1/2'
         bfd:
           enable: true
+        ospfv3ipsec:
+          authentication:
+            spi_value: 484
+            authentication_type: 'IPSEC'
+            authentication_algorithm: 'MD5'
+            authentication_key: 'U2FsdGVkX1/VZuJrAQKgRuitc4xDJYAfUUDA6ADg8U1N9PUL3dUXn1FajshSgcuuGMvvjCemkdqldqLsteyGjg=='
+            authentication_key_encrypted: true
+
       - name: 'Eth1/3'
     state: deleted
 
@@ -269,6 +442,16 @@ EXAMPLES = """
         bfd:
           enable: true
           bfd_profile: 'profile1'
+        ospfv3ipsec:
+          encryption:
+            spi_value: 9999
+            encryption_type: 'IPSEC'
+            encryption_algorithm: 'AES_CBC_128'
+            encryption_key: 'U2FsdGVkX1+RVU8e/t9tl/WgxdwLqE5ItVx3qyiviwc2jm5SvfH64yALBdASkG+piHyxZHn0JZGGQAb6Z6YnQg=='
+            encryption_key_encrypted: true
+            authentication_algorithm: 'SHA1'
+            authentication_key: 'U2FsdGVkX1+KgS+cZFc26KNss7416P1ocgpNdWKP6hu/u42uVzR+Rt1uYVEbV5jThz4r8Ju2/rC19r2rqCc8Aw=='
+            authentication_key_encrypted: true
         network: broadcast
       - name: 'Eth1/3'
         area_id: '3.3.3.3'
@@ -295,6 +478,9 @@ EXAMPLES = """
 # ipv6 ospfv3 network broadcast
 # ipv6 ospfv3 passive
 # ipv6 ospfv3 priority 20
+# ipv6 ospfv3 encryption ipsec spi 9999 esp aes-cbc-128
+# U2FsdGVkX1+RVU8e/t9tl/WgxdwLqE5ItVx3qyiviwc2jm5SvfH64yALBdASkG+piHyxZHn0JZGGQAb6Z6YnQg== encryption-key-encrypted
+# U2FsdGVkX1+KgS+cZFc26KNss7416P1ocgpNdWKP6hu/u42uVzR+Rt1uYVEbV5jThz4r8Ju2/rC19r2rqCc8Aw== authentication-key-encrypted
 # !
 # interface Eth1/2
 # !
@@ -323,6 +509,9 @@ EXAMPLES = """
 # ipv6 ospfv3 mtu-ignore
 # ipv6 ospfv3 network broadcast
 # ipv6 ospfv3 priority 20
+# ipv6 ospfv3 encryption ipsec spi 9999 esp
+# aes-cbc-128 U2FsdGVkX1+RVU8e/t9tl/WgxdwLqE5ItVx3qyiviwc2jm5SvfH64yALBdASkG+piHyxZHn0JZGGQAb6Z6YnQg== encryption-key-encrypted
+# U2FsdGVkX1+KgS+cZFc26KNss7416P1ocgpNdWKP6hu/u42uVzR+Rt1uYVEbV5jThz4r8Ju2/rC19r2rqCc8Aw== authentication-key-encrypted
 # !
 # interface Eth1/2
 # !
@@ -348,10 +537,39 @@ EXAMPLES = """
           enable: true
           bfd_profile: 'profile2'
         network: point_to_point
+        ospfv3ipsec:
+          encryption:
+            spi_value: 9999
+            encryption_type: 'IPSEC'
+            encryption_algorithm: 'AES_CBC_128'
+            encryption_key: 'U2FsdGVkX1+RVU8e/t9tl/WgxdwLqE5ItVx3qyiviwc2jm5SvfH64yALBdASkG+piHyxZHn0JZGGQAb6Z6YnQg=='
+            encryption_key_encrypted: true
+            authentication_algorithm: 'SHA1'
+            authentication_key: 'U2FsdGVkX1+KgS+cZFc26KNss7416P1ocgpNdWKP6hu/u42uVzR+Rt1uYVEbV5jThz4r8Ju2/rC19r2rqCc8Aw=='
+            authentication_key_encrypted: true
       - name: 'Eth1/2'
         bfd:
           enable: true
         network: point_to_point
+        ospfv3ipsec:
+          authentication:
+            spi_value: 566
+            encryption_key: 'IPSEC'
+            authentication_algorithm: 'SHA1'
+            authentication_key: 'U2FsdGVkX18Dmg2PY5pefS+Px6uf3eusD3/p7geRI+CKbEhhu6dCz0LjkFfHpo30xkotd2RGEEbu3O8H1u/Hst8Em8ijgBzSVvXOiD9QbTQ='
+            authentication_key_encrypted: true
+      - name: 'Eth1/3'
+        ospfv3ipsec:
+          encryption:
+            spi_value: 555
+            encryption_type: 'IPSEC'
+            encryption_algorithm: 'DES'
+            encryption_key: 'U2FsdGVkX1+qamfn+ogyJoO9b3jo6ooYihCH/Tlvg2LMZFYRUEXhLeo//2wQx56A'
+            encryption_key_encrypted: true
+            authentication_algorithm: 'SHA256'
+            authentication_key: 'U2FsdGVkX18peEBfs0HBZvbjnrpO9HEqGw0cHkRbRmS+H1AZtBYsRZZAVHb1VAVKv/vlQP5xsJZEDVX2NbqPl8gh8f8QGoR1gC2bpPAw6Q3pFhxEhgmOIunFf9bwm
+                                 JsJ'
+            authentication_key_encrypted: true
     state: merged
 
 # After state:
@@ -371,15 +589,23 @@ EXAMPLES = """
 # ipv6 ospfv3 network point-to-point
 # ipv6 ospfv3 passive
 # ipv6 ospfv3 priority 20
+# ipv6 ospfv3 encryption ipsec spi 9999 esp
+# aes-cbc-128 U2FsdGVkX1+RVU8e/t9tl/WgxdwLqE5ItVx3qyiviwc2jm5SvfH64yALBdASkG+piHyxZHn0JZGGQAb6Z6YnQg== encryption-key-encrypted
+# U2FsdGVkX1+KgS+cZFc26KNss7416P1ocgpNdWKP6hu/u42uVzR+Rt1uYVEbV5jThz4r8Ju2/rC19r2rqCc8Aw== authentication-key-encrypted
 # !
 # interface Eth1/2
 # ipv6 ospfv3 bfd
 # ipv6 ospfv3 network point-to-point
+# ipv6 ospfv3 authentication ipsec spi 566 sha1
+# U2FsdGVkX18Dmg2PY5pefS+Px6uf3eusD3/p7geRI+CKbEhhu6dCz0LjkFfHpo30xkotd2RGEEbu3O8H1u/Hst8Em8ijgBzSVvXOiD9QbTQ= authentication-key-encrypted
 # !
 # interface Eth1/3
 # ipv6 ospfv3 bfd
 # ipv6 ospfv3 network point-to-point
 # ipv6 ospfv3 area 3.3.3.3
+# ipv6 ospfv3 encryption ipsec spi 555 esp des U2FsdGVkX1+qamfn+ogyJoO9b3jo6ooYihCH/Tlvg2LMZFYRUEXhLeo//2wQx56A encryption-key-encrypted
+# sha256
+# U2FsdGVkX18peEBfs0HBZvbjnrpO9HEqGw0cHkRbRmS+H1AZtBYsRZZAVHb1VAVKv/vlQP5xsJZEDVX2NbqPl8gh8f8QGoR1gC2bpPAw6Q3pFhxEhgmOIunFf9bwmJsJ authentication-key-encrypted
 # !
 # sonic#
 
@@ -403,13 +629,23 @@ EXAMPLES = """
 # ipv6 ospfv3 network broadcast
 # ipv6 ospfv3 passive
 # ipv6 ospfv3 priority 20
+# ipv6 ospfv3 encryption ipsec spi 9999 esp aes-cbc-128
+# U2FsdGVkX1+RVU8e/t9tl/WgxdwLqE5ItVx3qyiviwc2jm5SvfH64yALBdASkG+piHyxZHn0JZGGQAb6Z6YnQg== encryption-key-encrypted
+# U2FsdGVkX1+KgS+cZFc26KNss7416P1ocgpNdWKP6hu/u42uVzR+Rt1uYVEbV5jThz4r8Ju2/rC19r2rqCc8Aw== authentication-key-encrypted
 # !
 # interface Eth1/2
+# ipv6 ospfv3 bfd
+# ipv6 ospfv3 network point-to-point
+# ipv6 ospfv3 authentication ipsec spi 566 sha1
+# U2FsdGVkX18Dmg2PY5pefS+Px6uf3eusD3/p7geRI+CKbEhhu6dCz0LjkFfHpo30xkotd2RGEEbu3O8H1u/Hst8Em8ijgBzSVvXOiD9QbTQ= authentication-key-encrypted
 # !
 # interface Eth1/3
 # ipv6 ospfv3 bfd
 # ipv6 ospfv3 network point-to-point
 # ipv6 ospfv3 area 3.3.3.3
+# ipv6 ospfv3 encryption ipsec spi 555 esp des U2FsdGVkX1+qamfn+ogyJoO9b3jo6ooYihCH/Tlvg2LMZFYRUEXhLeo//2wQx56A encryption-key-encrypted
+# sha256
+# U2FsdGVkX18peEBfs0HBZvbjnrpO9HEqGw0cHkRbRmS+H1AZtBYsRZZAVHb1VAVKv/vlQP5xsJZEDVX2NbqPl8gh8f8QGoR1gC2bpPAw6Q3pFhxEhgmOIunFf9bwmJsJ authentication-key-encrypted
 # !
 # sonic#
 
@@ -429,6 +665,15 @@ EXAMPLES = """
           enable: true
           bfd_profile: 'profile2'
         network: broadcast
+        ospfv3ipsec:
+          encrypption:
+            spi_value: 444
+            encryption_type: 'IPSEC'
+            encryption_algorithm: 'NULL'
+            authentication_algorithm: 'SHA1'
+            authentication_key: 'U2FsdGVkX1/TRX7fZMWcSi4IqDpv+JEkvzsOC8wKb4rOw5a+DiQyDcsZj8nQTaP5C6ydcL/IHoB9lSa0djS6KQ=='
+            authentication_key_encrypted: true
+
     state: replaced
 
 # After state:
@@ -448,8 +693,16 @@ EXAMPLES = """
 # ipv6 ospfv3 network broadcast
 # ipv6 ospfv3 passive
 # ipv6 ospfv3 priority 20
+# ipv6 ospfv3 encryption ipsec spi 9999 esp esp aes-cbc-128
+# U2FsdGVkX1+RVU8e/t9tl/WgxdwLqE5ItVx3qyiviwc2jm5SvfH64yALBdASkG+piHyxZHn0JZGGQAb6Z6YnQg== encryption-key-encrypted
+# U2FsdGVkX1+KgS+cZFc26KNss7416P1ocgpNdWKP6hu/u42uVzR+Rt1uYVEbV5jThz4r8Ju2/rC19r2rqCc8Aw== authentication-key-encrypted
+#
 # !
 # interface Eth1/2
+# ipv6 ospfv3 bfd
+# ipv6 ospfv3 network point-to-point
+# ipv6 ospfv3 authentication ipsec spi 566 sha1
+# U2FsdGVkX18Dmg2PY5pefS+Px6uf3eusD3/p7geRI+CKbEhhu6dCz0LjkFfHpo30xkotd2RGEEbu3O8H1u/Hst8Em8ijgBzSVvXOiD9QbTQ= authentication-key-encrypted
 # !
 # interface Eth1/3
 # ipv6 ospfv3 area 2.2.2.2
@@ -462,6 +715,8 @@ EXAMPLES = """
 # ipv6 ospfv3 network broadcast
 # ipv6 ospfv3 passive
 # ipv6 ospfv3 priority 20
+# ipv6 ospfv3 encryption ipsec spi 444 esp null
+# sha1 U2FsdGVkX1/TRX7fZMWcSi4IqDpv+JEkvzsOC8wKb4rOw5a+DiQyDcsZj8nQTaP5C6ydcL/IHoB9lSa0djS6KQ== encryption-key-encrypted
 # !
 # sonic#
 
@@ -485,11 +740,17 @@ EXAMPLES = """
 # ipv6 ospfv3 priority 20
 # !
 # interface Eth1/2
+# ipv6 ospfv3 bfd
+# ipv6 ospfv3 network point-to-point
+# ipv6 ospfv3 authentication ipsec spi 566 sha1
+# U2FsdGVkX18Dmg2PY5pefS+Px6uf3eusD3/p7geRI+CKbEhhu6dCz0LjkFfHpo30xkotd2RGEEbu3O8H1u/Hst8Em8ijgBzSVvXOiD9QbTQ= authentication-key-encrypted
 # !
 # interface Eth1/3
 # ipv6 ospfv3 bfd
 # ipv6 ospfv3 network point-to-point
 # ipv6 ospfv3 area 3.3.3.3
+# ipv6 ospfv3 encryption ipsec spi 444 esp null
+# sha1 U2FsdGVkX1/TRX7fZMWcSi4IqDpv+JEkvzsOC8wKb4rOw5a+DiQyDcsZj8nQTaP5C6ydcL/IHoB9lSa0djS6KQ== encryption-key-encrypted
 # !
 # sonic#
 
@@ -509,6 +770,13 @@ EXAMPLES = """
           enable: true
           bfd_profile: 'profile2'
         network: broadcast
+        ospfv3ipsec:
+          authentication:
+            spi_value: 888
+            authentication_type: 'IPSEC'
+            authentication_algorithm: 'MD5'
+            authentication_key: 'U2FsdGVkX1/zmIu9qjNBGjK+itJO2cU/4EES17fBhljI3Jy4HkHCBHYQyY2WQbg3/BQu9Wv6ZbUMQoV1G9DqVQ=='
+            authentication_key_encrypted: true
     state: overridden
 
 # After state:
@@ -532,6 +800,8 @@ EXAMPLES = """
 # ipv6 ospfv3 network broadcast
 # ipv6 ospfv3 passive
 # ipv6 ospfv3 priority 20
+# ipv6 ospfv3 authentication ipsec spi 888
+# md5 U2FsdGVkX1/zmIu9qjNBGjK+itJO2cU/4EES17fBhljI3Jy4HkHCBHYQyY2WQbg3/BQu9Wv6ZbUMQoV1G9DqVQ== authentication_key_encrypted
 # !
 # sonic#
 """

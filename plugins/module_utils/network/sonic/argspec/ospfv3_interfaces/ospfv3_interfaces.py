@@ -34,13 +34,41 @@ class Ospfv3_interfacesArgs(object):
                 'transmit_delay': {'type': 'int'},
                 'passive': {'type': 'bool'},
                 'advertise': {'type': 'str'},
+                'ospfv3ipsec': {
+                    'type': 'dict',
+                    'mutually_exclusive': [['authentication', 'encryption']],
+                    'options': {
+                        'authentication': {
+                            'type': 'dict',
+                            'options': {
+                                'authentication_algorithm': {'type': 'str', 'required': True, 'choices': ['MD5', 'SHA1', 'SHA256']},
+                                'authentication_key': {'type': 'str', 'no_log': True, 'required': True},
+                                'authentication_key_encrypted': {'type': 'bool', 'required': True},
+                                'authentication_type': {'type': 'str', 'required': True, 'choices': ['IPSEC']},
+                                'spi_value': {'type': 'int', 'required': True}
+                            }
+                        },
+                        'encryption': {
+                            'type': 'dict',
+                            'options': {
+                                'encryption_type': {'type': 'str', 'required': True, 'choices': ['IPSEC']},
+                                'encryption_algorithm': {'type': 'str', 'required': True, 'choices': ['3DES', 'DES', 'AES_CBC_128', 'AES_CBC_192', 'NULL']},
+                                'encryption_key': {'type': 'str', 'no_log': True},
+                                'encryption_key_encrypted': {'type': 'bool'},
+                                'authentication_algorithm': {'type': 'str', 'required': True, 'choices': ['MD5', 'SHA1', 'SHA256']},
+                                'authentication_key': {'type': 'str', 'required': True, 'no_log': True},
+                                'authentication_key_encrypted': {'type': 'bool', 'required': True},
+                                'spi_value': {'type': 'int', 'required': True}
+                            }
+                        }
+                    }
+                }
             },
             'type': 'list'
         },
-
         'state': {
             'choices': ['merged', 'deleted', 'replaced', 'overridden'],
             'default': 'merged',
             'type': 'str'
         }
-    }  # pylint: disable=C0301
+    }
